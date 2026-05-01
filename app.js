@@ -1,81 +1,147 @@
-// =============================
-// 🔥 CONFIGURAÇÃO DA WEB RÁDIO
-// =============================
+/**
+ * LAB028: GO LIVE - CORE ENGINE
+ * @author DJ JOTTAPE 028
+ * @version 3.0.0
+ */
+
+// 1. CONFIGURAÇÃO CENTRAL (EDITÁVEL)
 const RADIO_CONFIG = {
-  streamURL: "https://stream.zeno.fm/f9u67m2y30duv", // Cole seu link aqui
-  name: "LAB028 RADIO",
-  description: "Onde os hits nascem",
-  autoPlay: false
+    url: "https://stream.zeno.fm/f9u67m2y30duv", // Link da Transmissão
+    name: "LAB028: GO LIVE",
+    description: "Sintonizado na batida real",
+    updateInterval: 30000 // Intervalo para checar metadados (30s)
 };
 
-// --- GERENCIAMENTO DE ESTADO (Pub/Sub) ---
+// 2. GERENCIAMENTO DE ESTADO (Reactive State)
 const State = {
-    playing: false,
-    currentView: '/',
-    volume: 0.8
-};
-
-// --- MOTOR DE ÁUDIO ---
-const AudioEngine = {
-    audio: new Audio(RADIO_CONFIG.streamURL),
+    isPlaying: false,
+    volume: localStorage.getItem('lab028_vol') || 0.8,
+    audioContext: null,
+    analyser: null,
     
-    init() {
-        this.audio.volume = State.volume;
-        this.setupListeners();
-    },
-
-    setupListeners() {
+    // Notifica a interface sobre mudanças
+    updateUI() {
         const playBtn = document.getElementById('play-btn');
-        const volSlider = document.getElementById('vol-slider');
+        const playIcon = document.getElementById('play-icon');
+        const statusText = document.getElementById('display-desc');
 
-        playBtn.addEventListener('click', () => this.toggle());
-        volSlider.addEventListener('input', (e) => {
-            this.audio.volume = e.target.value;
-        });
-    },
-
-    toggle() {
-        const icon = document.getElementById('play-icon');
-        if (State.playing) {
-            this.audio.pause();
-            icon.innerText = "▶";
+        if (this.isPlaying) {
+            playIcon.innerHTML = 'Ⅱ'; // Ícone de Pause
+            statusText.innerText = "Transmissão Ativa | 128kbps";
+            playBtn.classList.add('playing');
         } else {
-            this.audio.play().catch(() => alert("Clique em qualquer lugar da página para habilitar o áudio."));
-            icon.innerText = "II";
+            playIcon.innerHTML = '▶'; // Ícone de Play
+            statusText.innerText = "Sintonizando a batida real...";
+            playBtn.classList.remove('playing');
         }
-        State.playing = !State.playing;
     }
 };
 
-// --- ROTEADOR SPA ---
+// 3. ENGINE DE ÁUDIO
+const audio = new Audio(RADIO_CONFIG.url);
+audio.crossOrigin = "anonymous";
+audio.preload = "auto";
+
+const AudioEngine = {
+    init() {
+        audio.volume = State.volume;
+        this.setupEventListeners();
+        this.loadLastState();
+    },
+
+    async toggle() {
+        try {
+            if (State.isPlaying) {
+                audio.pause();
+                // Otimização: mata o stream ao pausar para economizar dados
+                audio.src = ""; 
+                audio.load();
+                State.isPlaying = false;
+            } else {
+                audio.src = RADIO_CONFIG.url;
+                await audio.play();
+                State.isPlaying = true;
+                this.initVisualizer(); // Inicia o motor visual se disponível
+            }
+            State.updateUI();
+        } catch (err) {
+            console.error("Erro ao iniciar transmissão:", err);
+            alert("Erro ao conectar com o servidor. Tente novamente.");
+        }
+    },
+
+    setVolume(val) {
+        State.volume = val;
+        audio.volume = val;
+        localStorage.setItem('lab028_vol', val);
+    },
+
+    setupEventListeners() {
+        document.getElementById('play-btn').onclick = () => this.toggle();
+        document.getElementById('vol-slider').oninput = (e) => this.setVolume(e.target.value);
+        
+        // Media Session API (Controle por fone de ouvido e tela de bloqueio)
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: RADIO_CONFIG.name,
+                artist: 'DJ JOTTAPE 028',
+                album: 'A Frequência da Nova Cena',
+                artwork: [
+                    { src: 'assets/imgs/logo-512.png', sizes: '512x512', type: 'image/png' }
+                ]
+            });
+        }
+    },
+
+    initVisualizer() {
+        // Preparado para implementação de Canvas Visualizer futura
+        if (!State.audioContext && State.isPlaying) {
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            State.audioContext = new AudioContext();
+            // Lógica de análise de frequência entraria aqui
+        }
+    },
+
+    loadLastState() {
+        document.getElementById('vol-slider').value = State.volume;
+    }
+};
+
+// 4. SISTEMA DE ROTAS (SPA - Single Page Application)
 const Router = {
     routes: {
         '/': `
-            <section class="hero">
-                <h1 class="glitch">LAB028</h1>
-                <p>O SOM DA QUEBRADA EM ALTA DEFINIÇÃO</p>
-                <div class="glass" style="padding: 20px; margin-top: 30px;">
-                    <p>DJs Online: <strong>DJ JOTTAPE 028</strong></p>
+            <section class="hero-view fade-in">
+                <div class="hero-content">
+                    <h2 class="glitch" data-text="LAB028">LAB028</h2>
+                    <h3 class="neon-subtitle">GO LIVE</h3>
+                    <p class="hero-desc">Onde o funk encontra a tecnologia. Acompanhe os sets exclusivos do DJ JOTTAPE 028 em tempo real.</p>
+                    <div class="hero-actions">
+                        <button onclick="AudioEngine.toggle()" class="btn-main-cta">OUVIR AGORA</button>
+                    </div>
                 </div>
             </section>
         `,
         '/artistas': `
-            <section style="padding: 150px 10%;">
-                <h2>ARTISTAS LAB028</h2>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px;">
-                    <div class="glass" style="height: 200px;"></div>
-                    <div class="glass" style="height: 200px;"></div>
-                    <div class="glass" style="height: 200px;"></div>
+            <section class="view-container fade-in">
+                <h2 class="section-title">EQUIPE LAB028</h2>
+                <div class="artist-grid">
+                    <div class="artist-card glass">
+                        <div class="artist-img"></div>
+                        <h4>DJ JOTTAPE 028</h4>
+                        <p>Producer & Founder</p>
+                    </div>
                 </div>
             </section>
         `,
         '/enviar': `
-            <section style="padding: 150px 10%;">
-                <h2>ENVIE SUA TRACK</h2>
-                <form id="music-form" style="display:flex; flex-direction:column; gap:15px; max-width:400px; margin-top:30px;">
-                    <input type="text" placeholder="Nome Artístico" class="glass" style="padding:15px; color:white;">
-                    <input type="email" placeholder="Seu E-mail" class="glass" style="padding:15px; color:white;">
-                    <button class="btn-neon" style="padding:15px; background:var(--primary); color:white; border:none; cursor:pointer;">ENVIAR AGORA</button>
+            <section class="view-container fade-in">
+                <h2 class="section-title">DEMO DROP</h2>
+                <p>Envie sua música para avaliação na nossa grade.</p>
+                <form id="submit-form" class="glass-form">
+                    <input type="text" placeholder="Nome do Artista" required>
+                    <input type="url" placeholder="Link da Música (Drive/SoundCloud)" required>
+                    <button type="submit" class="btn-neon">ENVIAR TRACK</button>
                 </form>
             </section>
         `
@@ -91,27 +157,26 @@ const Router = {
         const container = document.getElementById('view-container');
         container.innerHTML = this.routes[path] || this.routes['/'];
         
-        // Efeito de transição suave
-        container.style.opacity = 0;
-        setTimeout(() => container.style.opacity = 1, 50);
+        // Scroll para o topo
+        window.scrollTo(0, 0);
     }
 };
 
-// --- INICIALIZAÇÃO ---
-window.addEventListener('DOMContentLoaded', () => {
+// 5. INICIALIZAÇÃO GLOBAL
+window.addEventListener('popstate', () => Router.render());
+
+document.addEventListener('DOMContentLoaded', () => {
     AudioEngine.init();
     Router.render();
-    
-    // UI Config inicial
-    document.getElementById('display-station-name').innerText = RADIO_CONFIG.name;
-    document.getElementById('display-desc').innerText = RADIO_CONFIG.description;
 
-    // Remove Loader
+    // Remove o Loader após o carregamento
     setTimeout(() => {
-        document.getElementById('loader').style.opacity = "0";
-        setTimeout(() => document.getElementById('loader').remove(), 500);
-    }, 1500);
+        const loader = document.getElementById('loader');
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 500);
+    }, 2000);
 });
 
-// Suporte ao botão voltar do navegador
-window.addEventListener('popstate', () => Router.render());
+// Expondo para o escopo global (para uso nos atributos onclick do HTML)
+window.Router = Router;
+window.AudioEngine = AudioEngine;
