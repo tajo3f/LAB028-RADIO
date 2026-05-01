@@ -2,20 +2,47 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAB028 RADIO | Onde os hits nascem</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- SEO Primário: LAB028 Go Live -->
+    <title>LAB028: Go Live | A Frequência da Nova Cena</title>
+    <meta name="title" content="LAB028: Go Live | A Frequência da Nova Cena">
+    <meta name="description" content="O epicentro da música urbana. Ouça agora a LAB028: Go Live. Sets exclusivos do DJ JOTTAPE 028 e a batida real das ruas em alta definição.">
+    <meta name="author" content="LAB028">
+
+    <!-- Open Graph / Facebook / Instagram -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lab028radio.com.br/">
+    <meta property="og:title" content="LAB028: Go Live | Sintonize agora">
+    <meta property="og:description" content="Conecte-se à batida. A rádio oficial da LAB028 está no ar.">
+    <meta property="og:image" content="assets/imgs/og-image.jpg"> 
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="LAB028: Go Live">
+    <meta property="twitter:description" content="A voz das ruas em tempo real.">
+
+    <!-- Favicons & Branding -->
+    <link rel="icon" type="image/png" href="assets/imgs/favicon.png">
+    <meta name="theme-color" content="#7B2EFF"> 
+
+    <!-- Fonts & Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-    <!-- Loader de Entrada -->
+    <!-- Loader de Entrada (Branding Go Live) -->
     <div id="loader" class="loader">
-        <div class="glitch" data-text="LAB028">LAB028</div>
+        <div class="glitch" data-text="GO LIVE">LAB028: GO LIVE</div>
     </div>
 
     <!-- Navegação SPA -->
-    <header class="header">
+    <header class="header glass">
         <nav class="nav">
             <div class="logo" onclick="Router.go('/')">LAB<span>028</span></div>
             <ul class="nav-menu">
@@ -26,36 +53,44 @@
         </nav>
     </header>
 
-    <!-- Conteúdo Dinâmico -->
+    <!-- Conteúdo Dinâmico (As views injetadas pelo app.js) -->
     <main id="view-container"></main>
 
-    <!-- PLAYER GLOBAL FIXO -->
-    <footer class="player-bar">
+    <!-- PLAYER GLOBAL FIXO (Refinado para Go Live) -->
+    <footer class="player-bar glass">
         <div class="player-grid">
             <div class="info-track">
-                <div class="status-live">AO VIVO</div>
+                <!-- Indicador visual de transmissão ativa -->
+                <div class="status-live">
+                    <span class="pulse-dot"></span> GO LIVE
+                </div>
                 <div class="track-details">
-                    <h4 id="display-station-name">LAB028 RADIO</h4>
-                    <p id="display-desc">Conectando ao stream...</p>
+                    <h4 id="display-station-name">LAB028: GO LIVE</h4>
+                    <p id="display-desc">Sintonizando a batida real...</p>
                 </div>
             </div>
 
             <div class="controls">
-                <button id="play-btn" class="main-play">
+                <button id="play-btn" class="main-play" title="Iniciar Transmissão">
                     <span id="play-icon">▶</span>
                 </button>
                 <div class="vol-control">
                     <span class="vol-icon">🔊</span>
-                    <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.8">
+                    <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.8">
                 </div>
             </div>
 
+            <!-- Espaço para Monetização / Parceiros -->
             <div class="ads-container">
-                <div class="ad-box">DIVULGUE AQUI</div>
+                <div class="ad-box">
+                    <small>PARCEIRO:</small><br>
+                    <strong>UAI, ACHEI NA SHOPEE</strong>
+                </div>
             </div>
         </div>
     </footer>
 
-    <script src="app.js"></script>
+    <!-- Lógica Modular -->
+    <script type="module" src="src/app.js"></script>
 </body>
 </html>
