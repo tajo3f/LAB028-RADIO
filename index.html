@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAB028 RADIO | Onde os hits nascem</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Loader de Entrada -->
+    <div id="loader" class="loader">
+        <div class="glitch" data-text="LAB028">LAB028</div>
+    </div>
+
+    <!-- Navegação SPA -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo" onclick="Router.go('/')">LAB<span>028</span></div>
+            <ul class="nav-menu">
+                <li><a href="javascript:void(0)" onclick="Router.go('/')">HOME</a></li>
+                <li><a href="javascript:void(0)" onclick="Router.go('/artistas')">ARTISTAS</a></li>
+                <li><a href="javascript:void(0)" onclick="Router.go('/enviar')" class="btn-neon">ENVIAR TRACK</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Conteúdo Dinâmico -->
+    <main id="view-container"></main>
+
+    <!-- PLAYER GLOBAL FIXO -->
+    <footer class="player-bar">
+        <div class="player-grid">
+            <div class="info-track">
+                <div class="status-live">AO VIVO</div>
+                <div class="track-details">
+                    <h4 id="display-station-name">LAB028 RADIO</h4>
+                    <p id="display-desc">Conectando ao stream...</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="play-btn" class="main-play">
+                    <span id="play-icon">▶</span>
+                </button>
+                <div class="vol-control">
+                    <span class="vol-icon">🔊</span>
+                    <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.8">
+                </div>
+            </div>
+
+            <div class="ads-container">
+                <div class="ad-box">DIVULGUE AQUI</div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
